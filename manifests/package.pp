@@ -1,8 +1,10 @@
 # Class: couchdb::package
 
-class couchdb::package {
+class couchdb::package (
+  $ensure,
+) {
   package { 'couchdb':
-    ensure  => installed,
+    ensure  => $ensure,
     require => Yumrepo['epel'],
   }
 }
