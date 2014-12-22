@@ -18,6 +18,8 @@
 #
 # [*log_level_local*]             - info
 #
+# [*manage_epel_repo*]            - true ; set to false if you are managing Yumrepo['epel'] elsewhere
+#
 # [*max_attachment_chunk_size*]   - 4294967296 ;4GB
 #
 # [*max_connections*]             - 2048
@@ -40,12 +42,14 @@
 #
 # [*view_index_dir*]              - /var/lib/couchdb
 #
+# [*version*]                     - latest ; optional couchdb package verision
+#
 #
 # [**]  -
 #
 #
 # === Requires:
-#  metcalfc-rpmrepos - https://github.com/metcalfc/puppet-rpmrepos
+#  metcalfc-rpmrepos - https://github.com/metcalfc/puppet-rpmrepos ; unless $manage_epel_repo is false
 #
 #  Packaged couchdb
 #    - RHEL/CentOS: EPEL
@@ -88,6 +92,7 @@ class couchdb (
   $log_file                   = '/var/log/couchdb/couch.log',
   $log_level                  = 'info',
   $log_max_chunk_size         = '1000000',
+  $manage_epel_repo           = true,
   $max_attachment_chunk_size  = '4294967296 ;4GB',
   $max_connections            = '2048',
   $max_dbs_open               = '100',
@@ -103,12 +108,17 @@ class couchdb (
   $uri_file                   = '/var/lib/couchdb/couch.uri',
   $vhost_global_handlers      = '_utils, _uuids, _session, _oauth, _users',
   $view_index_dir             = '/var/lib/couchdb',
+  $version                    = 'latest',
 ) {
 
   include couchdb::params
-  include rpmrepos::epel
+
+  if $manage_epel_repo == true {
+    include rpmrepos::epel
+  }
 
   class { 'couchdb::package':
+    ensure => $version,
     notify => Class['couchdb::service'],
   }
 
